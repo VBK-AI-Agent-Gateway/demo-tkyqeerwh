@@ -1,203 +1,180 @@
-/* ===== 教学计划: 周/月视图 + 日历 + 任务同步首页待办 ===== */
-let PLAN_VIEW = '月视图';
-let CAL_Y = new Date().getFullYear();
-let CAL_M = new Date().getMonth(); // 0-11
+/* ===== 教学计划: 周/月计划 + 日历视图, 任务自动同步首页待办 ===== */
+function renderPlanning(view){
+  const plans = DB.list('plans');
+  const now = new Date();
+  const ym = now.getFullYear(), mo = now.getMonth();
 
-function planForm(p){
-  return `
-  <div class="form-row"><label>类型</label>
-    <select name="kind">${UI.options(['周计划','月计划','日历'], p.kind||'周计划')}</select></div>
-  <div class="form-row"><label>标题 <span class="req">*</span></label>
-    <input type="text" name="title" value="${UI.esc(p.title||'')}" placeholder="例如：完成二次函数单元教学"></div>
-  <div class="form-grid">
-    <div class="form-row"><label>开始日期</label><input type="date" name="start" value="${UI.esc(p.start||p.date||UI.today())}"></div>
-    <div class="form-row"><label>结束/日期</label><input type="date" name="end" value="${UI.esc(p.end||p.date||UI.today())}"></div>
+  const weekPlans = plans.filter(p=>p.kind==='周计划');
+  const monthPlans = plans.filter(p=>p.kind==='月计划');
+  const events = plans.filter(p=>p.date);
+
+  view.innerHTML = `
+  <div class="page-head">
+    <div class="page-title-row"><h2>教学计划</h2></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="pNew">＋ 新增计划任务</button>
+    </div>
   </div>
-  <div class="form-row"><label>同步为首页待办</label>
-    <select name="syncTask">${UI.options([{v:'no',l:'不同步'},{v:'yes',l:'同步一条待办任务'}], 'no')}</select>
-    <div class="hint">选择同步后，将在首页“待完成任务”中出现同一事项，可勾选完成</div>
+  <div class="grid-2" style="align-items:start">
+    <div class="card">
+      <div class="card-head"><h3>周计划</h3></div>
+      <div class="card-body" id="weekList">${renderPlanList(weekPlans)}</div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>月计划</h3></div>
+      <div class="card-body" id="monthList">${renderPlanList(monthPlans)}</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-head"><h3>${ym} 年 ${mo+1} 月 · 日历视图（勾选=完成，同步首页待办）</h3></div>
+    <div class="card-body">
+      <div class="cal-grid cal-head">${['一','二','三','四','五','六','日'].map(d=>'<div class="cal-h">'+d+'</div>').join('')}</div>
+      <div class="cal-grid" id="calBody">${renderCalendar(ym, mo, events)}</div>
+    </div>
   </div>`;
+
+  document.getElementById('pNew').onclick = ()=>openPlanDrawer();
+  bindPlanList(document.getElementById('weekList'));
+  bindPlanList(document.getElementById('monthList'));
+  bindCalendar();
 }
 
-function openPlanDrawer(id, preset){
+function renderPlanList(list){
+  if(!list.length) return '<div class="empty-sm">暂无计划，点击右上角新增</div>';
+  return list.map(p=>`
+    <div class="plan-row" data-id="${p.id}">
+      <input type="checkbox" class="p-done" ${p.done?'checked':''}>
+      <div class="plan-info">
+        <div class="plan-title ${p.done?'done':''}">${UI.esc(p.title)}</div>
+        <div class="plan-meta">${UI.esc(p.start||'')} ${p.end?'~ '+UI.esc(p.end):''} ${p.date?'· 日程 '+UI.esc(p.date):''}</div>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-xs btn-ghost p-edit">编辑</button>
+        <button class="btn btn-xs btn-ghost p-del">删除</button>
+      </div>
+    </div>`).join('');
+}
+
+function bindPlanList(root){
+  if(!root) return;
+  root.querySelectorAll('.plan-row').forEach(row=>{
+    const id = row.dataset.id;
+    row.querySelector('.p-done').onchange = e=>{
+      DB.update('plans', id, {done:e.target.checked});
+      UI.toast(e.target.checked ? '已完成，已同步首页待办' : '已取消完成');
+      rerender();
+    };
+    row.querySelector('.p-edit').onclick = ()=>openPlanDrawer(id);
+    row.querySelector('.p-del').onclick = ()=>{
+      if(confirm('删除该计划任务？')){ DB.remove('plans', id); UI.toast('已删除'); rerender(); }
+    };
+    row.oncontextmenu = e=>UI.ctxMenu(e, [
+      {act:'edit', label:'编辑', run:()=>openPlanDrawer(id)},
+      {act:'done', label:'切换完成', run:()=>{ const p=DB.get('plans',id); DB.update('plans',id,{done:!p.done}); rerender(); }},
+      '-',
+      {act:'del', label:'删除', danger:true, run:()=>{ if(confirm('删除该计划？')){DB.remove('plans',id); rerender();} }}
+    ]);
+  });
+}
+
+function renderCalendar(ym, mo, events){
+  const first = new Date(ym, mo, 1);
+  const startDow = (first.getDay()+6)%7; // 周一为0
+  const days = new Date(ym, mo+1, 0).getDate();
+  const today = UI.today();
+  let cells = '';
+  for(let i=0;i<startDow;i++) cells += '<div class="cal-cell other"></div>';
+  for(let d=1; d<=days; d++){
+    const ds = ym+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const evs = events.filter(e=>e.date===ds);
+    const isToday = ds===today;
+    cells += `<div class="cal-cell${isToday?' today':''}" data-date="${ds}">
+      <div class="cal-d">${d}</div>
+      ${evs.map(e=>`<div class="cal-ev ${e.done?'done':''}" data-id="${e.id}" title="${UI.esc(e.title)}">${UI.esc(e.title)}</div>`).join('')}
+    </div>`;
+  }
+  return cells;
+}
+
+function bindCalendar(){
+  const body = document.getElementById('calBody');
+  if(!body) return;
+  body.querySelectorAll('.cal-cell:not(.other)').forEach(cell=>{
+    cell.ondblclick = ()=>openPlanDrawer(null, cell.dataset.date);
+    cell.oncontextmenu = e=>{ if(!e.target.closest('.cal-ev')) UI.ctxMenu(e, [
+      {act:'add', label:'新增任务到 '+cell.dataset.date, run:()=>openPlanDrawer(null, cell.dataset.date)}
+    ]); };
+  });
+  body.querySelectorAll('.cal-ev').forEach(ev=>{
+    ev.onclick = ()=>openPlanDrawer(ev.dataset.id);
+    ev.oncontextmenu = e=>UI.ctxMenu(e, [
+      {act:'edit', label:'编辑', run:()=>openPlanDrawer(ev.dataset.id)},
+      {act:'done', label:'切换完成', run:()=>{ const p=DB.get('plans',ev.dataset.id); DB.update('plans',ev.dataset.id,{done:!p.done}); rerender(); }},
+      '-',
+      {act:'del', label:'删除', danger:true, run:()=>{ if(confirm('删除？')){DB.remove('plans',ev.dataset.id); rerender();} }}
+    ]);
+  });
+}
+
+/* 侧滑抽屉: 新增/编辑计划(勾选完成的任务会同步首页待办) */
+function openPlanDrawer(id, presetDate){
   const p = id ? DB.get('plans', id) : null;
   UI.openDrawer({
-    title: p ? '编辑计划' : '新增计划',
+    title: p ? '编辑计划任务' : '新增计划任务',
     formKey: 'plan',
-    body: planForm(Object.assign({}, preset||{}, p|| {})),
+    body: `
+      <div class="form-row"><label>标题 *</label><input name="title" value="${UI.esc(p?p.title:'')}" placeholder="如：完成二次函数单元教学"></div>
+      <div class="form-row"><label>类型</label><select name="kind">${UI.options(['周计划','月计划','日历'], p?p.kind:'周计划')}</select></div>
+      <div class="form-row"><label>开始日期</label><input type="date" name="start" value="${p&&p.start?p.start:(presetDate||UI.today())}"></div>
+      <div class="form-row"><label>结束日期</label><input type="date" name="end" value="${p&&p.end?p.end:''}"></div>
+      <div class="form-row"><label>日历日期</label><input type="date" name="date" value="${p&&p.date?p.date:(presetDate||UI.today())}"></div>
+      <div class="form-row"><label>备注</label><textarea name="note" rows="3" placeholder="补充说明">${UI.esc(p&&p.note?p.note:'')}</textarea></div>
+      <div class="form-row"><label><input type="checkbox" name="done" ${p&&p.done?'checked':''}> 已完成</label></div>`,
     onSave(v){
-      if(!v.title.trim()){ UI.toast('请填写标题'); return false; }
-      const data = { kind:v.kind, title:v.title.trim(), start:v.start, end:v.end, date:v.start, done:p?p.done:false };
-      if(p) DB.update('plans', p.id, data);
-      else DB.insert('plans', data);
-      if(v.syncTask === 'yes'){
-        DB.insert('tasks', { text:v.title.trim(), due:v.start, done:false, from:'planning' });
-      }
+      if(!v.title){ UI.toast('请填写标题'); return false; }
+      const data = { title:v.title, kind:v.kind, start:v.start, end:v.end, date:v.date, note:v.note, done:!!v.done };
+      if(p) DB.update('plans', p.id, data); else DB.insert('plans', data);
       rerender();
     }
   });
 }
 window.openPlanDrawer = openPlanDrawer;
 
-function renderPlanning(view){
-  const plans = DB.list('plans');
-  const tasks = DB.list('tasks');
-  const lessons = DB.list('lessonplans');
-
-  // 日历格子
-  function monthGrid(){
-    const first = new Date(CAL_Y, CAL_M, 1);
-    const startDow = (first.getDay() + 6) % 7; // 周一起始
-    const daysInMonth = new Date(CAL_Y, CAL_M+1, 0).getDate();
-    const prevDays = new Date(CAL_Y, CAL_M, 0).getDate();
-    const iso = (y,m,d)=> y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const today = UI.today();
-    let cells = '';
-    for(let i=0;i<42;i++){
-      let y=CAL_Y, m=CAL_M, d, dim=false;
-      if(i < startDow){ d = prevDays - startDow + 1 + i; m = CAL_M-1; dim=true; if(m<0){m=11;y--;} }
-      else if(i - startDow >= daysInMonth){ d = i - startDow - daysInMonth + 1; m = CAL_M+1; dim=true; if(m>11){m=0;y++;} }
-      else { d = i - startDow + 1; }
-      const date = iso(y,m,d);
-      const evs = [];
-      plans.forEach(p=>{
-        const s = p.start||p.date, e = p.end||p.date;
-        if(s && e && date >= s && date <= e)
-          evs.push(`<div class="cal-ev" data-pid="${p.id}">${UI.esc(p.title)}</div>`);
-      });
-      tasks.filter(t=>t.due===date).forEach(t=>
-        evs.push(`<div class="cal-ev task" data-tid="${t.id}">${t.done?'✓ ':''}${UI.esc(t.text)}</div>`));
-      lessons.filter(l=>l.date===date && !l.archived).forEach(l=>
-        evs.push(`<div class="cal-ev" style="background:#ecfdf5;color:#047857" title="课程">📖 ${UI.esc(l.title)}</div>`));
-      cells += `<div class="cal-cell ${dim?'dim':''} ${date===today?'today':''}" data-date="${date}">
-        <div class="d">${d}</div>${evs.slice(0,4).join('')}${evs.length>4?'<div class="hint">+'+(evs.length-4)+'</div>':''}</div>`;
-      if(i >= 41) break;
-    }
-    return `<div class="cal-grid">
-      ${['一','二','三','四','五','六','日'].map(x=>`<div class="cal-dow">${x}</div>`).join('')}
-      ${cells}</div>`;
-  }
-
-  const monthLabel = CAL_Y + ' 年 ' + (CAL_M+1) + ' 月';
-
-  let bodyHTML;
-  if(PLAN_VIEW === '日历视图'){
-    bodyHTML = `<div class="card">
-      <div class="cal-head">
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="btn btn-sm" id="calPrev">‹ 上月</button>
-          <strong style="font-size:15px">${monthLabel}</strong>
-          <button class="btn btn-sm" id="calNext">下月 ›</button>
-          <button class="btn btn-sm" id="calToday">回到今天</button>
-        </div>
-        <span class="hint">点击空白格可快速新建计划；蓝=计划，黄=任务，绿=课程</span>
-      </div>
-      ${monthGrid()}
-    </div>`;
-  } else {
-    const kind = PLAN_VIEW === '周视图' ? '周计划' : '月计划';
-    const list = plans.filter(p=>p.kind===kind);
-    bodyHTML = `<div class="card">
-      <div class="card-title">${PLAN_VIEW}（${kind}）<span class="hint">周/月计划按开始日期排序</span></div>
-      ${list.length ? `<div class="table-wrap"><table class="tbl">
-        <thead><tr><th style="width:34px"></th><th>事项</th><th>开始</th><th>结束</th><th>状态</th><th>操作</th></tr></thead>
-        <tbody>${list.map(p=>`<tr data-id="${p.id}">
-          <td><input type="checkbox" class="pDone" ${p.done?'checked':''} style="accent-color:var(--primary)"></td>
-          <td><strong>${UI.esc(p.title)}</strong></td>
-          <td>${UI.esc(p.start||'')}</td>
-          <td>${UI.esc(p.end||'')}</td>
-          <td><span class="badge ${p.done?'green':''}">${p.done?'已完成':'进行中'}</span></td>
-          <td class="ops"><button class="btn btn-xs" data-act="edit">编辑</button><button class="btn btn-xs" data-act="del">删除</button></td>
-        </tr>`).join('')}</tbody></table></div>` : '<div class="empty">暂无'+kind+'，点击右上角新增</div>'}
-    </div>`;
-  }
-
+/* ===== 数据与备份 ===== */
+function renderSettings(view){
+  const st = DB.stats();
   view.innerHTML = `
-  <div class="page-head">
-    <div><div class="page-title">教学计划</div><div class="page-sub">周计划 / 月计划 / 日历视图 · 计划与任务同步首页待办</div></div>
-    <div style="display:flex;gap:8px">
-      <button class="btn" id="pNewTask">＋ 新增任务</button>
-      <button class="btn btn-primary" id="pNew">＋ 新增计划</button>
-    </div>
-  </div>
-  <div class="toolbar">
-    <div class="seg">
-      ${['周视图','月视图','日历视图'].map(v=>`<button data-v="${v}" class="${PLAN_VIEW===v?'active':''}">${v}</button>`).join('')}
-    </div>
-    <div class="spacer"></div>
-    <span class="hint">未完成任务 ${tasks.filter(t=>!t.done).length} 项 · 已完成 ${tasks.filter(t=>t.done).length} 项</span>
-  </div>
-  ${bodyHTML}
-  <div class="card" style="margin-top:14px">
-    <div class="card-title">全部任务（同步首页待办）</div>
-    <div id="pTasks">
-    ${tasks.length ? tasks.map(t=>`
-      <label class="task-item ${t.done?'done':''}" data-id="${t.id}">
-        <input type="checkbox" ${t.done?'checked':''}>
-        <span class="task-text">${UI.esc(t.text)}</span>
-        <span class="task-due">${UI.esc(t.due||'')}</span>
-        <button class="btn btn-xs" data-act="del" type="button">删除</button>
-      </label>`).join('') : '<div class="empty">暂无任务</div>'}
-    </div>
+  <div class="page-head"><div class="page-title-row"><h2>数据与备份</h2></div></div>
+  <div class="grid-2" style="align-items:start">
+    <div class="card"><div class="card-head"><h3>数据概览</h3></div>
+      <div class="card-body">
+        <table class="table"><tbody>
+        ${DB.KEYS.map(k=>`<tr><td>${k}</td><td class="ta-r">${st[k]||0} 条</td></tr>`).join('')}
+        <tr><td>本地占用</td><td class="ta-r">${(st._bytes/1024).toFixed(1)} KB</td></tr>
+        <tr><td>最后更新</td><td class="ta-r">${st._updatedAt?UI.fmtDate(st._updatedAt):'—'}</td></tr>
+        </tbody></table>
+      </div></div>
+    <div class="card"><div class="card-head"><h3>备份 / 恢复</h3></div>
+      <div class="card-body">
+        <p class="hint">所有数据保存在浏览器 localStorage，可随时导出 JSON 备份，在其它设备导入恢复。</p>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn btn-primary" id="sExport">⭳ 导出备份文件</button>
+          <button class="btn btn-ghost" id="sImport">⭱ 导入备份</button>
+          <input type="file" id="sFile" accept="application/json" hidden>
+          <button class="btn btn-ghost" id="sReset">重置为示例数据</button>
+        </div>
+      </div></div>
   </div>`;
-
-  view.querySelectorAll('.seg button').forEach(b=> b.onclick = ()=>{ PLAN_VIEW = b.dataset.v; rerender(); });
-  document.getElementById('pNew').onclick = ()=>openPlanDrawer();
-  document.getElementById('pNewTask').onclick = ()=>{
-    UI.openDrawer({
-      title:'新增任务', formKey:'task',
-      body:`<div class="form-row"><label>任务内容 <span class="req">*</span></label><input type="text" name="text"></div>
-            <div class="form-row"><label>截止日期</label><input type="date" name="due" value="${UI.today()}"></div>`,
-      onSave(v){
-        if(!v.text.trim()){ UI.toast('请填写任务内容'); return false; }
-        DB.insert('tasks', { text:v.text.trim(), due:v.due, done:false, from:'planning' });
-        rerender();
-      }
-    });
+  document.getElementById('sExport').onclick = ()=>{ DB.downloadBackup(); UI.toast('备份已下载'); };
+  const fi = document.getElementById('sFile');
+  document.getElementById('sImport').onclick = ()=>fi.click();
+  fi.onchange = ()=>{
+    const f = fi.files[0]; if(!f) return;
+    const rd = new FileReader();
+    rd.onload = ()=>{ try{ DB.importBackup(rd.result); UI.toast('导入成功'); rerender(); }catch(e){ UI.toast('导入失败: '+e.message); } };
+    rd.readAsText(f);
   };
-  const cp = document.getElementById('calPrev');
-  if(cp){
-    cp.onclick = ()=>{ CAL_M--; if(CAL_M<0){CAL_M=11;CAL_Y--;} rerender(); };
-    document.getElementById('calNext').onclick = ()=>{ CAL_M++; if(CAL_M>11){CAL_M=0;CAL_Y++;} rerender(); };
-    document.getElementById('calToday').onclick = ()=>{ const n=new Date(); CAL_Y=n.getFullYear(); CAL_M=n.getMonth(); rerender(); };
-    view.querySelectorAll('.cal-cell').forEach(cell=>{
-      cell.onclick = e=>{
-        if(e.target.closest('.cal-ev')) return;
-        openPlanDrawer(null, { kind:'日历', start:cell.dataset.date, end:cell.dataset.date, title:'' });
-      };
-      cell.addEventListener('contextmenu', e=>UI.ctxMenu(e,[
-        { act:'np', label:'在此日新建计划', run:()=>openPlanDrawer(null,{kind:'日历',start:cell.dataset.date,end:cell.dataset.date}) },
-        { act:'nt', label:'在此日新建任务', run:()=>{
-            DB.insert('tasks',{ text:'新任务', due:cell.dataset.date, done:false, from:'planning' }); rerender();
-          } }
-      ]));
-    });
-    view.querySelectorAll('.cal-ev[data-pid]').forEach(ev=>{
-      ev.onclick = e=>{ e.stopPropagation(); openPlanDrawer(ev.dataset.pid); };
-    });
-  }
-  view.querySelectorAll('tr[data-id]').forEach(tr=>{
-    const id = tr.dataset.id;
-    const chk = tr.querySelector('.pDone');
-    if(chk) chk.onchange = ()=>{ DB.update('plans', id, { done: chk.checked }); rerender(); };
-    tr.querySelectorAll('button[data-act]').forEach(b=> b.onclick = ()=>{
-      if(b.dataset.act==='edit') openPlanDrawer(id);
-      if(b.dataset.act==='del'){ DB.remove('plans', id); rerender(); UI.toast('已删除'); }
-    });
-    tr.addEventListener('contextmenu', e=>UI.ctxMenu(e,[
-      { act:'edit', label:'编辑计划', run:()=>openPlanDrawer(id) },
-      { act:'copy', label:'复制计划', run:()=>{ DB.duplicate('plans', id); rerender(); UI.toast('已复制'); } },
-      '-',
-      { act:'del', label:'删除', danger:true, run:()=>{ DB.remove('plans', id); rerender(); UI.toast('已删除'); } }
-    ]));
-  });
-  view.querySelectorAll('#pTasks .task-item').forEach(el=>{
-    el.querySelector('input').onchange = e=>{
-      DB.update('tasks', el.dataset.id, { done:e.target.checked }); rerender();
-    };
-    el.querySelector('[data-act=del]').onclick = e=>{ e.stopPropagation(); DB.remove('tasks', el.dataset.id); rerender(); UI.toast('已删除'); };
-    el.addEventListener('contextmenu', e=>UI.ctxMenu(e,[
-      { act:'del', label:'删除任务', danger:true, run:()=>{ DB.remove('tasks', el.dataset.id); rerender(); } }
-    ]));
-  });
+  document.getElementById('sReset').onclick = ()=>{
+    if(confirm('将清空当前数据并恢复示例数据，确定？')){ DB.resetAll(); UI.toast('已重置'); rerender(); }
+  };
 }
