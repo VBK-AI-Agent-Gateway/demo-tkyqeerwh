@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教师教学工作台</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <!-- 左侧侧边栏 -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">📘</span>
+      <span class="brand-text">教学工作台</span>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <a href="#/dashboard" data-route="dashboard"><span class="nav-ico">🏠</span><span class="nav-txt">首页仪表盘</span></a>
+      <a href="#/lesson-plans" data-route="lesson-plans"><span class="nav-ico">📚</span><span class="nav-txt">课程备课</span></a>
+      <a href="#/teaching-notes" data-route="teaching-notes"><span class="nav-ico">📝</span><span class="nav-txt">教案管理</span></a>
+      <a href="#/courseware" data-route="courseware"><span class="nav-ico">🖥️</span><span class="nav-txt">课件中心</span></a>
+      <a href="#/question-bank" data-route="question-bank"><span class="nav-ico">❓</span><span class="nav-txt">题库管理</span></a>
+      <a href="#/grades" data-route="grades"><span class="nav-ico">📊</span><span class="nav-txt">学生成绩</span></a>
+      <a href="#/review" data-route="review"><span class="nav-ico">🔄</span><span class="nav-txt">教学复盘</span></a>
+      <a href="#/planning" data-route="planning"><span class="nav-ico">🗓️</span><span class="nav-txt">教学计划</span></a>
+      <a href="#/settings" data-route="settings"><span class="nav-ico">⚙️</span><span class="nav-txt">数据与备份</span></a>
+    </nav>
+    <div class="sidebar-foot">
+      <button id="sidebarToggle" class="collapse-btn" title="收起/展开侧边栏">⟨</button>
+    </div>
+  </aside>
+
+  <!-- 主区域 -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <button id="topSidebarToggle" class="icon-btn" title="收起/展开">☰</button>
+      <div class="top-nav">
+        <a href="#/dashboard" class="top-link active" data-top="dashboard">首页</a>
+        <a href="#/lesson-plans" class="top-link" data-top="lesson-plans">备课</a>
+        <a href="#/teaching-notes" class="top-link" data-top="teaching-notes">教案</a>
+        <a href="#/grades" class="top-link" data-top="grades">成绩</a>
+        <a href="#/planning" class="top-link" data-top="planning">计划</a>
+      </div>
+      <div class="top-search">
+        <input type="text" id="globalSearch" placeholder="全局搜索（课程/教案/题目/学生…）" autocomplete="off">
+        <div id="searchResults" class="search-results" hidden></div>
+      </div>
+      <div class="top-actions">
+        <button class="btn btn-sm btn-ghost" id="btnQuickAdd" title="快速新增">＋ 新增</button>
+        <span class="avatar" title="当前用户">师</span>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <div id="breadcrumb" class="breadcrumb"></div>
+      <main id="view" class="view"></main>
+    </div>
+  </div>
+</div>
+
+<!-- 侧滑抽屉 -->
+<div id="drawerMask" class="drawer-mask" hidden></div>
+<section id="drawer" class="drawer" hidden aria-modal="true">
+  <header class="drawer-head">
+    <h3 id="drawerTitle">新增</h3>
+    <button class="icon-btn" id="drawerClose">✕</button>
+  </header>
+  <div id="drawerBody" class="drawer-body"></div>
+  <footer class="drawer-foot">
+    <span id="drawerDraftTip" class="draft-tip"></span>
+    <button class="btn btn-ghost" id="drawerCancel">取消</button>
+    <button class="btn btn-primary" id="drawerSave">保存</button>
+  </footer>
+</section>
+
+<!-- 右键菜单 -->
+<div id="ctxMenu" class="ctx-menu" hidden></div>
+
+<!-- 轻提示 -->
+<div id="toast" class="toast" hidden></div>
+
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/modules/dashboard.js"></script>
+<script src="js/modules/lessonplans.js"></script>
+<script src="js/modules/notes.js"></script>
+<script src="js/modules/courseware.js"></script>
+<script src="js/modules/questions.js"></script>
+<script src="js/modules/grades.js"></script>
+<script src="js/modules/review.js"></script>
+<script src="js/modules/planning.js"></script>
+<script src="js/modules/settings.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
