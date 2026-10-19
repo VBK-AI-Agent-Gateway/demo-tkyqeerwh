@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>坦克图去牌 · 修改后图片下载</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <h1>坦克下方的牌子 <span class="arrow">已去除</span></h1>
+  <p class="sub">基于你上传的 source.png（448×640）处理：检测底部高亮标牌区域 → 邻域背景羽化填充擦除。</p>
+</div></header>
+
+<main class="wrap">
+  <div class="compare">
+    <figure class="shot">
+      <div class="badge badge-old">原图</div>
+      <img src="before.png" alt="原图：坦克下方有牌子">
+      <figcaption>修改前 · 坦克下方有牌子</figcaption>
+    </figure>
+    <figure class="shot shot-new">
+      <div class="badge badge-new">已去除</div>
+      <img src="after.png" alt="修改后：牌子已去除">
+      <figcaption>修改后 · 牌子已去除</figcaption>
+      <a class="btn" href="after.png" download="tank-sign-removed.png">⬇ 下载修改后的图片</a>
+    </figure>
+  </div>
+
+  <section class="card">
+    <h2>处理说明</h2>
+    <ul>
+      <li>输入：/ws/source.png（448×640 RGB）</li>
+      <li>检测：下半区亮色低饱和像素统计，定位标牌矩形</li>
+      <li>擦除：取牌下方条带做高斯模糊背景，羽化边缘贴回</li>
+      <li>脚本：remove_sign.py / detect_and_remove.py / detect2.py（可复跑）</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="foot">静态页 · GitHub Pages 部署</footer>
+</body>
+</html>
