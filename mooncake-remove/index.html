@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>月饼去除 · 前后对比</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+         background:#0f1220; color:#e8eaf6; min-height:100vh; }
+  header { text-align:center; padding:40px 16px 8px; }
+  h1 { font-size:clamp(22px,4vw,34px); letter-spacing:1px; }
+  h1 span { color:#ffb74d; }
+  p.sub { color:#9aa0b8; margin-top:10px; font-size:15px; }
+  .wrap { max-width:760px; margin:28px auto 60px; padding:0 16px; }
+  .compare { position:relative; width:100%; aspect-ratio:448/640; overflow:hidden;
+    border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,.55); user-select:none;
+    background:#000; touch-action:none; }
+  .compare img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    pointer-events:none; }
+  .after-clip { position:absolute; inset:0; overflow:hidden; width:50%; }
+  .after-clip img { width:auto; height:100%; min-width:100%; }
+  .handle { position:absolute; top:0; bottom:0; left:50%; width:3px;
+    background:#ffb74d; transform:translateX(-50%); cursor:ew-resize; }
+  .knob { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:44px; height:44px; border-radius:50%; background:#ffb74d; color:#0f1220;
+    display:flex; align-items:center; justify-content:center; font-weight:700;
+    box-shadow:0 4px 14px rgba(0,0,0,.5); }
+  .tag { position:absolute; top:12px; padding:4px 12px; border-radius:999px;
+    font-size:13px; backdrop-filter:blur(4px); }
+  .tag.l { left:12px; background:rgba(255,255,255,.15); }
+  .tag.r { right:12px; background:rgba(255,183,77,.85); color:#0f1220; font-weight:600; }
+  .info { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin-top:22px; }
+  .chip { background:#1a1f35; border:1px solid #2a3152; color:#c3c9e6;
+    padding:8px 16px; border-radius:999px; font-size:13px; }
+  .note { margin-top:26px; color:#8890ad; font-size:13px; line-height:1.8; text-align:center; }
+  .range { width:100%; margin-top:18px; accent-color:#ffb74d; }
+</style>
+</head>
+<body>
+<header>
+  <h1>手里的<span>月饼</span>，去除前后对比</h1>
+  <p class="sub">拖动中线滑块（或滑杆）左右查看 · 纯本地图像修复，无 AI 出网</p>
+</header>
+<div class="wrap">
+  <div class="compare" id="cmp">
+    <img src="input.png" alt="原图">
+    <div class="after-clip" id="clip"><img src="output.png" alt="去除后"></div>
+    <span class="tag l">原图</span>
+    <span class="tag r">已去除月饼</span>
+    <div class="handle" id="handle"><div class="knob">↔</div></div>
+  </div>
+  <input class="range" id="range" type="range" min="0" max="100" value="50" aria-label="对比滑块">
+  <div class="info">
+    <span class="chip">原图 448 × 640</span>
+    <span class="chip">修复掩膜 22,498 px</span>
+    <span class="chip">掩膜内修改 99.6%</span>
+    <span class="chip">接缝外溢 &lt; 2%</span>
+  </div>
+  <p class="note">
+    检测：HSV 金棕色阈值 + 全图连通域（面积 / 填充度 / 圆度打分）定位月饼。<br>
+    修复：450 轮扩散式 inpaint（每轮重新固定已知像素）+ 6px 羽化接缝融合。<br>
+    验证：掩膜外像素差异仅为羽化带（421 px），见 diff.png。
+  </p>
+</div>
+<script>
+const cmp = document.getElementById('cmp'), clip = document.getElementById('clip'),
+      handle = document.getElementById('handle'), range = document.getElementById('range');
+function setPos(pct) {
+  pct = Math.max(0, Math.min(100, pct));
+  clip.style.width = pct + '%';
+  handle.style.left = pct + '%';
+  range.value = pct;
+}
+let dragging = false;
+function fromEvent(e) {
+  const rect = cmp.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  setPos(x / rect.width * 100);
+}
+cmp.addEventListener('pointerdown', e => { dragging = true; cmp.setPointerCapture(e.pointerId); fromEvent(e); });
+cmp.addEventListener('pointermove', e => { if (dragging) fromEvent(e); });
+cmp.addEventListener('pointerup', () => dragging = false);
+cmp.addEventListener('pointercancel', () => dragging = false);
+range.addEventListener('input', () => setPos(+range.value));
+setPos(50);
+</script>
+</body>
+</html>
