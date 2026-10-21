@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>荣威RX5 智联控车 APP 设计方案</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <span class="logo">ROEWE</span>
+      <span class="logo-sub">RX5 · 斑马互联控车 APP 设计方案</span>
+    </div>
+    <h1>荣威RX5 手机控车 APP<br><span class="hl">车辆状态 · 远程控制 · 数字钥匙 · 充电管理</span></h1>
+    <p class="lead">面向新款荣威RX5（燃油版 / 插混版 PHEV），风格对齐斑马车机（Venus OS）的 Android & iOS 双端设计方案：包含页面结构、首页布局、UI 配色、可直接绘图的页面 Prompt，并附车载互联安全要点与合规注意事项。</p>
+    <div class="chips">
+      <span class="chip">Android & iOS</span>
+      <span class="chip">斑马 Venus 风格</span>
+      <span class="chip">燃油版 / 插混版</span>
+      <span class="chip">深色车机化 UI</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc wrap">
+  <a href="#structure">① 页面结构</a>
+  <a href="#home">② 首页布局</a>
+  <a href="#colors">③ UI 配色</a>
+  <a href="#prompts">④ 绘图 Prompt</a>
+  <a href="#security">⑤ 安全要点</a>
+  <a href="#compliance">⑥ 合规注意</a>
+</nav>
+
+<!-- 1 页面结构 -->
+<section id="structure" class="wrap section">
+  <h2>① 页面结构（信息架构）</h2>
+  <div class="grid cols-2">
+    <div class="card">
+      <h3>全局框架：底部 Tab 5 个</h3>
+      <ul class="tree">
+        <li><b>首页（我的车）</b> —— 车辆状态总览 + 高频快捷控制</li>
+        <li><b>车控（控制中心）</b> —— 全量远程控制命令，按域分组</li>
+        <li><b>发现 / 服务</b> —— 保养提醒、充电地图、道路救援、社区</li>
+        <li><b>消息</b> —— 告警推送、电子围栏触发、工单进度</li>
+        <li><b>我的</b> —— 账号、车辆管理、数字钥匙权限、设置</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>页面层级明细</h3>
+      <pre class="tree-pre">首页
+ ├─ 登录 / 手机号 + 人脸可选
+ ├─ 绑车（VIN 扫码 / OCR）
+ ├─ 车辆状态监控页（油耗·电耗·里程·胎压·车窗·后备箱）
+ ├─ 寻车（鸣笛闪灯 + 地图导航回车）
+ └─ 车辆切换（多车家庭账号）
+车控
+ ├─ 门锁（解锁/闭锁/寻车鸣笛）
+ ├─ 远程空调（温度·风量·座椅加热·预约）
+ ├─ 车窗 / 后备箱
+ ├─ 蓝牙数字钥匙（钥匙分享·权限·无感解锁）
+ ├─ 定位 & 电子围栏（围栏列表/触发记录）
+ └─ 插混专属：充电管理（充电枪状态·预约充电·电量上限）
+服务
+ ├─ 保养提醒 & 保养计划（里程/时间双触发）
+ ├─ 充电桩地图（插混版）
+ ├─ 用车报告 / 能耗趋势
+ └─ 售后预约 · 道路救援
+消息 / 我的
+ ├─ 围栏与告警推送 · 低温提醒
+ └─ 隐私授权中心 · 钥匙权限管理</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 2 首页布局 -->
+<section id="home" class="wrap section">
+  <h2>② 首页布局（自上而下 6 个区块）</h2>
+  <div class="home-layout">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="ph-block ph-status">
+          <span>9:41</span><span>5G ▮▮▮ ▮</span>
+        </div>
+        <div class="ph-block ph-head">
+          <div>
+            <div class="ph-car">RX5 PHEV <span class="dot online"></span></div>
+            <div class="ph-sub">已停放 · 上海 · 徐汇区 2 小时前</div>
+          </div>
+          <div class="ph-ico">🔔</div>
+        </div>
+        <div class="ph-block ph-hero">
+          <div class="ph-carimg">🚙</div>
+          <div class="ph-range"><b>纯电 68km</b> ／ 油箱续航 520km</div>
+          <div class="ph-batt"><i style="width:72%"></i></div>
+          <div class="ph-batt-txt">动力电池 72% · 燃油 62%</div>
+        </div>
+        <div class="ph-block ph-grid">
+          <div class="ph-cell">🔒<span>车门 已锁</span></div>
+          <div class="ph-cell">❄️<span>空调 24℃</span></div>
+          <div class="ph-cell">🪟<span>车窗 已关</span></div>
+          <div class="ph-cell">📍<span>寻车</span></div>
+        </div>
+        <div class="ph-block ph-card">
+          <div class="ph-card-t">⚡ 充电管理 <em>插混版</em></div>
+          <div class="ph-card-b">预约 23:00 低谷充电 · 电量上限 90%</div>
+        </div>
+        <div class="ph-block ph-card warn">
+          <div class="ph-card-t">🔧 保养提醒</div>
+          <div class="ph-card-b">距下次保养 1,200 km / 45 天</div>
+        </div>
+        <div class="ph-tab">
+          <span class="on">首页</span><span>车控</span><span>服务</span><span>消息</span><span>我的</span>
+        </div>
+      </div>
+    </div>
+    <ol class="layout-steps">
+      <li><b>顶部状态栏</b>：时间 / 信号 / 账户头像入口，深色沉浸式。</li>
+      <li><b>车辆头部</b>：车型徽标（燃油 RX5 / 插混 RX5 PHEV）、在线状态点、停放位置与时间、消息中心角标。</li>
+      <li><b>主视觉区（Hero）</b>：3/4 角渲染车图 + 续航信息；插混版双续航（纯电+燃油）与电量条，燃油版显示综合续航与油耗。</li>
+      <li><b>快捷控制宫格（4 宫格）</b>：车门、远程空调、车窗、寻车（鸣笛闪灯），一触直达，长按进二级页。</li>
+      <li><b>运营 / 提醒卡片区</b>：插混版展示「充电管理」卡（预约充电、电量上限、枪状态）；燃油版替换为「油耗与行程」卡；两者共用「保养提醒」进度卡。</li>
+      <li><b>底部 Tab 栏</b>：首页 / 车控 / 服务 / 消息 / 我的，中间「车控」为主操作凸起按钮。</li>
+    </ol>
+  </div>
+</section>
+
+<!-- 3 配色 -->
+<section id="colors" class="wrap section">
+  <h2>③ UI 配色方案（斑马车机对齐）</h2>
+  <div class="grid cols-3">
+    <div class="card swatch-card">
+      <div class="swatch" style="background:#0B0F14"></div>
+      <h3>深空黑 #0B0F14</h3><p>全局背景，对齐斑马车机深色模式，降低夜间刺眼。</p>
+    </div>
+    <div class="card swatch-card">
+      <div class="swatch" style="background:#121A24"></div>
+      <h3>卡片深蓝 #121A24</h3><p>卡片/面板底色，层级区分。</p>
+    </div>
+    <div class="card swatch-card">
+      <div class="swatch" style="background:#00D4B8"></div>
+      <h3>斑马青 #00D4B8</h3><p>主品牌色：主按钮、选中态、在线状态。</p>
+    </div>
+    <div class="card swatch-card">
+      <div class="swatch" style="background:#2E8CFF"></div>
+      <h3>科技蓝 #2E8CFF</h3><p>插混充电、纯电续航、链接状态。</p>
+    </div>
+    <div class="card swatch-card">
+      <div class="swatch" style="background:#FFB020"></div>
+      <h3>警示琥珀 #FFB020</h3><p>保养提醒、围栏触发、低电量。</p>
+    </div>
+    <div class="card swatch-card">
+      <div class="swatch" style="background:#FF5A5A"></div>
+      <h3>告警红 #FF5A5A</h3><p>异常告警、紧急救援、防盗触发。</p>
+    </div>
+    <div class="card swatch-card">
+      <div class="swatch" style="background:#F2F5F8"></div>
+      <h3>雪白 #F2F5F8</h3><p>正文文字 / 浅色模式背景。</p>
+    </div>
+    <div class="card swatch-card">
+      <div class="swatch" style="background:#8A97A6"></div>
+      <h3>雾灰 #8A97A6</h3><p>次级说明文字、禁用态。</p>
+    </div>
+    <div class="card swatch-card">
+      <div class="swatch" style="background:linear-gradient(90deg,#00D4B8,#2E8CFF)"></div>
+      <h3>渐变点缀</h3><p>青→蓝渐变用于能量流、进度条、Logo 光效。</p>
+    </div>
+  </div>
+  <div class="card tips">
+    <b>规范建议：</b>圆角 16/24dp，卡片间距 12dp；主按钮高 48dp 满足拇指热区；正文 ≥ 16sp，对比度 ≥ 4.5:1；图标线性 2px 描边，与斑马 HMI 图标语言一致；支持深/浅色双主题跟随系统。
+  </div>
+</section>
+
+<!-- 4 Prompts -->
+<section id="prompts" class="wrap section">
+  <h2>④ 可直接绘图的页面 Prompt（Midjourney / 文生图通用）</h2>
+  <p class="p-note">句式：主体 + 布局 + 风格 + 质量词。中文出图可直接用，英文版见每段末尾。</p>
+  <div class="grid cols-2">
+    <div class="card prompt">
+      <h3>P1 · 首页（我的车）</h3>
+      <p>荣威RX5插混版手机控车APP首页，深空黑背景，顶部车辆名称与在线状态，中央3/4角度白色SUV渲染图，双续航文字“纯电68km/油箱520km”，青色电量进度条，下方2x2快捷控制宫格（车门锁、雪花空调、车窗、定位寻车图标），充电管理卡片与保养提醒卡片，底部五个Tab导航，斑马车机风格，青绿#00D4B8与科技蓝点缀，UI界面设计，Figma，扁平化，高保真，Dribbble质量 --ar 9:19.5</p>
+      <p class="en">ROEWE RX5 PHEV car-control app home screen, dark navy background, 3/4 white SUV render, dual range text, cyan battery bar, 2x2 quick-control grid, charging &amp; maintenance cards, bottom tab bar, Banma Venus OS style, #00D4B8 accents, high-fidelity mobile UI, Figma --ar 9:19.5</p>
+    </div>
+    <div class="card prompt">
+      <h3>P2 · 车辆状态监控页</h3>
+      <p>手机APP车辆状态监控页面，深色背景，透明车身X光透视图展示四个轮胎胎压数值、车门开启状态、车窗开合、后备箱状态，顶部综合续航与平均油耗，底部彩色状态标签（正常绿色、预警琥珀），线性图标2px描边，斑马车机深色主题，科技感，UI设计稿，高保真 --ar 9:19.5</p>
+      <p class="en">vehicle status monitoring screen, dark theme, X-ray transparent car showing tire pressure, doors, windows, trunk, range &amp; fuel stats top, status chips bottom, linear icons, Banma dark UI, high-fidelity app design --ar 9:19.5</p>
+    </div>
+    <div class="card prompt">
+      <h3>P3 · 远程空调</h3>
+      <p>手机远程空调控制页面，深空黑背景，中央大号环形温度刻度盘显示24℃，青色渐变弧线，内部风扇动画图标，下方风量四档滑块、座椅加热按钮、前挡除雾开关，底部“开启空调”大按钮，预约空调时间选择，极简科技风，斑马车机配色，UI高保真设计 --ar 9:19.5</p>
+      <p class="en">remote AC control screen, dark background, large circular temperature dial 24°C, cyan gradient arc, fan icon, fan-speed slider, seat-heater &amp; defog toggles, big start button, schedule row, minimal tech style, high-fidelity UI --ar 9:19.5</p>
+    </div>
+    <div class="card prompt">
+      <h3>P4 · 寻车 + 地图定位</h3>
+      <p>手机寻车页面，全屏深色地图，蓝色定位光圈标记车辆位置，路线虚线指引当前位置到车辆，底部车辆卡片显示距离180米、鸣笛闪灯按钮（喇叭图标发光）、一键导航按钮，顶部搜索框，深色地图模式，青色高亮，APP UI设计，高保真 --ar 9:19.5</p>
+      <p class="en">find-my-car screen, full-screen dark map, glowing blue location pin, dashed route to car, bottom card “180m”, honk &amp; flash button, navigate button, dark map UI, cyan highlights, high-fidelity mobile design --ar 9:19.5</p>
+    </div>
+    <div class="card prompt">
+      <h3>P5 · 蓝牙数字钥匙</h3>
+      <p>手机蓝牙数字钥匙页面，深色背景，中央拟物卡片式车钥匙，卡面印荣威LOGO与RX5字样，蓝牙信号波纹动画，下方“无感解锁已开启”开关、钥匙分享列表（头像+权限标签：解锁/启动/临时钥匙）、权限到期时间，安全盾牌图标，科技高级感，UI设计稿 --ar 9:9.5</p>
+      <p class="en">Bluetooth digital key screen, dark UI, skeuomorphic key card with ROEWE logo, bluetooth waves, passive-unlock toggle, key sharing list with permission chips, expiry time, shield security icon, premium tech feel, high-fidelity UI --ar 9:19.5</p>
+    </div>
+    <div class="card prompt">
+      <h3>P6 · 电子围栏</h3>
+      <p>手机电子围栏设置页面，深色地图上显示青色半透明圆形地理围栏，半径1公里滑块，围栏名称“家”，进出围栏触发通知开关，历史触发记录时间线列表，顶部围栏列表Tab，深色模式，青绿色高亮，APP界面设计，高保真 --ar 9:19.5</p>
+      <p class="en">geofence setup screen, dark map with translucent cyan circular fence, radius slider, enter/exit notification toggle, trigger history timeline, dark mode, cyan accents, high-fidelity mobile UI --ar 9:19.5</p>
+    </div>
+    <div class="card prompt">
+      <h3>P7 · 充电管理（插混专属）</h3>
+      <p>插混车充电管理页面，深色背景，中央大电池环形进度72%，充电枪已连接状态图标，预约低谷充电23:00时间选择，电量上限90%滑块，本次充电费用与电量统计，充电曲线小图表，科技蓝渐变主色，斑马风格，UI高保真设计 --ar 9:19.5</p>
+      <p class="en">PHEV charging management screen, dark UI, big battery ring 72%, plugged-in status, off-peak schedule 23:00, charge limit slider 90%, cost stats, charging curve chart, tech-blue gradient, high-fidelity design --ar 9:19.5</p>
+    </div>
+    <div class="card prompt">
+      <h3>P8 · 保养提醒 + 浅色对照版</h3>
+      <p>浅色模式保养提醒页面，白色背景，顶部车辆卡片，保养进度环显示“1200km或45天后保养”，保养项目清单（机油、滤芯、刹车片）带状态标签，预约保养按钮，浅色主题，斑马青绿色点缀，整洁现代，手机APP UI设计，高保真 --ar 9:19.5</p>
+      <p class="en">light-mode maintenance reminder screen, white background, progress ring “1200km / 45 days”, service item checklist with status chips, book-service button, cyan accents, clean modern mobile UI, high-fidelity --ar 9:19.5</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 安全 -->
+<section id="security" class="wrap section">
+  <h2>⑤ 车载互联安全要点</h2>
+  <div class="grid cols-2">
+    <div class="card sec">
+      <h3>🔐 通信与身份安全</h3>
+      <ul>
+        <li>App↔T-Box 全链路 TLS 1.3 加密，指令带时间戳 + 随机数防重放。</li>
+        <li>远程控制指令需二次验证：密码/生物识别（指纹、人脸）+ 短信 OTP，高危指令（解锁、启动、开后备箱）强制 step-up 认证。</li>
+        <li>Token 短期有效 + 刷新轮换，密钥存 Keychain（iOS）/ Keystore（Android），禁止明文日志。</li>
+        <li>防逆向：代码混淆、证书绑定（SSL Pinning）、Root/越狱检测降级处理。</li>
+      </ul>
+    </div>
+    <div class="card sec">
+      <h3>🔑 数字钥匙安全</h3>
+      <ul>
+        <li>蓝牙钥匙基于 UWB/BLE 安全测距，防中继攻击（RSSI/ToF 距离校验）。</li>
+        <li>钥匙分层权限：仅解锁 / 解锁+启动 / 临时钥匙（限定时间与次数），分享需双方实名。</li>
+        <li>钥匙吊销实时生效、离线缓存黑名单；手机丢失可远程挂失。</li>
+        <li>车辆侧：连续失败锁定、异常位置解锁告警推送。</li>
+      </ul>
+    </div>
+    <div class="card sec">
+      <h3>📡 控车链路安全</h3>
+      <ul>
+        <li>关键指令（远程启动）车端二次确认条件：P挡、车门关、油/电正常方可执行。</li>
+        <li>电子围栏与位置数据本地+服务端双重校验，越界告警走独立高优通道。</li>
+        <li>OTA 升级签名验签 + A/B 分区回滚，升级过程禁止断电打断。</li>
+        <li>API 网关限流、防刷，异常指令（1分钟内高频控制）熔断并告警。</li>
+      </ul>
+    </div>
+    <div class="card sec">
+      <h3>🛡️ 数据与端侧安全</h3>
+      <ul>
+        <li>车端 T-Box 安全启动（Secure Boot）、HSM 硬件加密模块存储根密钥。</li>
+        <li>个人数据（位置、行程、钥匙）传输与存储加密，密钥轮换机制。</li>
+        <li>最小权限原则：APP 仅申请定位、蓝牙等必要权限，权限用途弹窗说明。</li>
+        <li>安全审计与渗透测试常态化，漏洞赏金计划。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 6 合规 -->
+<section id="compliance" class="wrap section">
+  <h2>⑥ 合规注意事项</h2>
+  <div class="grid cols-2">
+    <div class="card comp">
+      <h3>🇨🇳 中国法规</h3>
+      <ul>
+        <li><b>个人信息保护法（PIPL）</b>：位置、生物识别等敏感信息单独同意；隐私政策显著告知；支持撤回同意与注销。</li>
+        <li><b>数据安全法</b>：重要数据境内存储，履行数据分级分类。</li>
+        <li><b>汽车数据安全管理若干规定</b>：车内处理优先、默认不收集、精度范围适用、脱敏处理；重要数据出境需安全评估。</li>
+        <li><b>GB/T &amp; 行业标准</b>：遵循《汽车整车信息安全技术要求》（GB 44495）、车联网网络安全标准。</li>
+        <li>地图与定位：使用具备甲级测绘资质的图商（高德/百度），坐标系合规（GCJ-02）。</li>
+      </ul>
+    </div>
+    <div class="card comp">
+      <h3>🌍 出海 / 双端上架</h3>
+      <ul>
+        <li><b>GDPR</b>：数据最小化、用户访问与被遗忘权、DPO 设置、跨境传输机制（SCC）。</li>
+        <li><b>iOS</b>：位置/蓝牙权限文案按 Apple 审核要求；MFi 与 CarPlay 关联说明；隐私清单（Privacy Manifest）。</li>
+        <li><b>Android</b>：后台定位、蓝牙扫描须运行时授权；适配厂商推送通道。</li>
+        <li><b>功能合规</b>：远程启动不违反驻车安全法规；电子围栏告警不构成监视他人，需车主本人授权；未成年人账号限制。</li>
+        <li><b>营销合规</b>：续航/油耗数据标注 CLTC 工况与测试条件。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card tips">
+    <b>落地建议：</b>上线前完成等保测评与车联网安全评估；隐私政策与用户协议分层呈现，首次启动走"隐私摘要→同意"两步流程；所有位置类功能（寻车、围栏）在 UI 上提供"一键关闭定位采集"入口。
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">荣威RX5 智联控车 APP · 设计交付文档 · 车辆状态 / 远程空调 / 寻车 / 门锁 / 蓝牙钥匙 / 电子围栏 / 保养提醒 / 充电管理</div>
+</footer>
+
+</body>
+</html>

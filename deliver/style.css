@@ -1,0 +1,116 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  background: #0B0F14;
+  color: #F2F5F8;
+  line-height: 1.65;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+.hero {
+  background: radial-gradient(1200px 500px at 20% 0%, rgba(0,212,184,.18), transparent 60%),
+              radial-gradient(900px 400px at 90% 10%, rgba(46,140,255,.16), transparent 60%),
+              #0B0F14;
+  padding: 64px 0 44px;
+  border-bottom: 1px solid #1C2733;
+}
+.brand { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; }
+.logo { font-weight: 800; letter-spacing: 6px; color: #00D4B8; font-size: 20px; }
+.logo-sub { color: #8A97A6; font-size: 14px; letter-spacing: 1px; }
+.hero h1 { font-size: 42px; line-height: 1.25; font-weight: 800; }
+.hero .hl { background: linear-gradient(90deg,#00D4B8,#2E8CFF); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { color: #AEBAC7; max-width: 860px; margin-top: 16px; font-size: 16px; }
+.chips { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { border: 1px solid #234; background: rgba(0,212,184,.08); color: #9FE9DC; padding: 6px 14px; border-radius: 999px; font-size: 13px; }
+
+.toc { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 26px; }
+.toc a {
+  text-decoration: none; color: #CFE3E0; background: #121A24;
+  border: 1px solid #1F2C3A; padding: 9px 16px; border-radius: 10px; font-size: 14px;
+}
+.toc a:hover { border-color: #00D4B8; color: #00D4B8; }
+
+.section { padding: 46px 0 8px; }
+.section h2 { font-size: 28px; margin-bottom: 20px; padding-left: 14px; border-left: 4px solid #00D4B8; }
+
+.grid { display: grid; gap: 16px; }
+.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+.card { background: #121A24; border: 1px solid #1F2C3A; border-radius: 16px; padding: 20px 22px; }
+.card h3 { font-size: 17px; margin-bottom: 10px; color: #00D4B8; }
+.card ul { padding-left: 18px; color: #B9C6D3; font-size: 14.5px; }
+.card ul li { margin-bottom: 7px; }
+.card p { color: #B9C6D3; font-size: 14.5px; }
+
+.tree { list-style: none; padding-left: 0 !important; }
+.tree li { padding: 7px 0; border-bottom: 1px dashed #1F2C3A; font-size: 14.5px; color: #B9C6D3; }
+.tree li:last-child { border-bottom: none; }
+.tree b { color: #F2F5F8; }
+
+.tree-pre {
+  white-space: pre-wrap; font-family: "SF Mono", Consolas, monospace;
+  font-size: 12.5px; color: #9FB2C4; line-height: 1.7;
+}
+
+/* 首页布局 */
+.home-layout { display: grid; grid-template-columns: 330px 1fr; gap: 30px; align-items: start; }
+.phone {
+  width: 300px; margin: 0 auto; background: #05070A; border: 8px solid #1B2531;
+  border-radius: 40px; padding: 12px 10px; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,.55);
+}
+.phone-notch { width: 110px; height: 22px; background: #05070A; border-radius: 0 0 14px 14px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 3; }
+.phone-screen { background: #0B0F14; border-radius: 28px; overflow: hidden; padding: 26px 12px 8px; }
+.ph-block { margin-bottom: 10px; }
+.ph-status { display: flex; justify-content: space-between; font-size: 11px; color: #8A97A6; margin-bottom: 12px; }
+.ph-head { display: flex; justify-content: space-between; align-items: center; }
+.ph-car { font-weight: 700; font-size: 15px; }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #00D4B8; }
+.ph-sub { font-size: 11px; color: #8A97A6; }
+.ph-ico { font-size: 16px; }
+.ph-hero { background: linear-gradient(160deg,#12202B,#0E1620); border: 1px solid #1F2C3A; border-radius: 16px; padding: 14px; text-align: center; }
+.ph-carimg { font-size: 52px; }
+.ph-range { font-size: 13px; color: #CFE3E0; margin-top: 4px; }
+.ph-range b { color: #2E8CFF; }
+.ph-batt { height: 7px; background: #1B2531; border-radius: 99px; margin: 9px 0 6px; overflow: hidden; }
+.ph-batt i { display: block; height: 100%; background: linear-gradient(90deg,#00D4B8,#2E8CFF); }
+.ph-batt-txt { font-size: 10.5px; color: #8A97A6; }
+.ph-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; }
+.ph-cell { background: #121A24; border: 1px solid #1F2C3A; border-radius: 12px; text-align: center; padding: 10px 2px; font-size: 18px; }
+.ph-cell span { display: block; font-size: 9.5px; color: #8A97A6; margin-top: 4px; }
+.ph-card { background: #121A24; border: 1px solid #1F2C3A; border-radius: 12px; padding: 10px 12px; }
+.ph-card.em, .ph-card.warn { border-left: 3px solid #2E8CFF; }
+.ph-card.warn { border-left-color: #FFB020; }
+.ph-card-t { font-size: 12.5px; font-weight: 700; }
+.ph-card-t em { font-style: normal; font-size: 9px; background: #2E8CFF; color: #fff; padding: 1px 6px; border-radius: 99px; margin-left: 5px; }
+.ph-card-b { font-size: 10.5px; color: #8A97A6; margin-top: 3px; }
+.ph-tab { display: flex; justify-content: space-around; padding: 9px 0 4px; border-top: 1px solid #1F2C3A; font-size: 10.5px; color: #8A97A6; }
+.ph-tab .on { color: #00D4B8; font-weight: 700; }
+
+.layout-steps { padding-left: 20px; }
+.layout-steps li { margin-bottom: 13px; color: #B9C6D3; font-size: 15px; }
+.layout-steps b { color: #00D4B8; }
+
+/* 配色 */
+.swatch-card { padding: 14px; }
+.swatch { height: 74px; border-radius: 12px; border: 1px solid #26313D; margin-bottom: 12px; }
+.swatch-card h3 { font-size: 15px; color: #F2F5F8; }
+.swatch-card p { font-size: 13px; }
+
+.tips { margin-top: 18px; color: #B9C6D3; font-size: 14.5px; border-left: 3px solid #00D4B8; }
+
+/* prompts */
+.p-note { color: #8A97A6; font-size: 14px; margin-bottom: 14px; }
+.prompt p { font-size: 13.8px; line-height: 1.75; background: #0E141C; border: 1px solid #1B2531; border-radius: 10px; padding: 12px 14px; color: #C3D1DE; }
+.prompt .en { margin-top: 8px; color: #7E93A8; font-size: 12.5px; }
+
+.card.sec, .card.comp { border-top: 3px solid #00D4B8; }
+.card.comp { border-top-color: #2E8CFF; }
+
+.foot { margin-top: 50px; padding: 26px 0 40px; border-top: 1px solid #1C2733; color: #5F7183; font-size: 13px; text-align: center; }
+
+@media (max-width: 860px) {
+  .cols-2, .cols-3 { grid-template-columns: 1fr; }
+  .home-layout { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 30px; }
+}
